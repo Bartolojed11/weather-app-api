@@ -63,3 +63,15 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # weather-app-api
+
+CONSUMED API FOR GETTING FORECAST
+https://openweathermap.org/forecast5
+
+CONSUMED API FOR GETTING PLACE INFORMATION
+https://www.geoapify.com/get-started-with-maps-api
+
+This implementation is the best for these reasons:
+1. This code implementation uses a DRY(Don't repeat yourself)
+2. This code implementation uses the S.O.L.I.D Principle
+3. This code follows the psr's coding standard
+4. API endpoints are secured using the machine-to-machine oauth grant type
