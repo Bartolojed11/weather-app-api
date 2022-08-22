@@ -22,12 +22,16 @@ class LocationController extends Controller
         $this->cache_life = config('cache.location_cache_life') ?? 3600;
     }
 
-    // For homepage of location
-    // Display's default location and it's temperature
+    /**
+     * This will return the current weather forecast and locations
+     * based on the listed location on the locations configuration
+     *
+     * @return json
+     */
     public function index()
     {
         $default_cities = config('locations.default.cities');
-        $icon_url = config('weather.icon.url');
+        $icon_url = config('services.weather.icon_url');
 
         $data = [];
         $ndx = 0;
@@ -62,13 +66,19 @@ class LocationController extends Controller
                 ->setFilter($filter)
                 ->get();
 
+
             $data[$ndx]['city'] = $default_cities[$i];
             $data[$ndx]['lon'] = $long;
             $data[$ndx]['lat'] = $lat;
-            $data[$ndx]['temp'] = $weather['data']['main']['temp'] ?? '';
+
+            $temperature = $weather['data']['main']['temp'] ?? '';
+            $temperature_symbol = $weather['temp_symbol'] ?? '';
+            $temperature = $temperature . ' ' . $temperature_symbol;
+
+            $data[$ndx]['temp'] = $temperature;
             $icon = $weather['data']['weather'][0]['icon'] ?? '';
             $data[$ndx]['icon'] = $icon == '' ? '' : $icon_url . $icon . '.png';
-            $data[$ndx]['time'] = date('g:i a', $weather['data']['dt']);
+            $data[$ndx]['weather_description'] = $weather['data']['weather'][0]['description'] ?? '';
             $ndx++;
         }
 
@@ -82,7 +92,14 @@ class LocationController extends Controller
         return response()->json($data);
     }
 
-    // For autocomplete api : Recheck if this is really needed
+    /**
+     * This will return the location based on the passed parameters
+     * This will also store the the result on cache to save api request
+     *
+     * @query string text, type
+     * @param Request $request
+     * @return json
+     */
     public function searchLocation(Request $request)
     {
         $request_name = $this->locationProvider
@@ -105,6 +122,14 @@ class LocationController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * This will get the weather forecast for a given longited and latitued
+     * This will also store the the result on cache to save api request
+     *
+     * @query string lon, lat, units, cnt
+     * @param Request $request
+     * @return json
+     */
     public function weatherForecast(Request $request)
     {
         $endpoint = '/forecast';
